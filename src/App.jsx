@@ -6,6 +6,10 @@ import { useGSAP } from '@gsap/react';
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
+
+ScrollTrigger.clearScrollMemory('manual');
+if (typeof window !== 'undefined') window.scrollTo(0, 0);
+
 /* ===================== SETTINGS ===================== */
 const IMG = {
   door: '/images/door.png',
@@ -30,7 +34,7 @@ const FALL_WAIT = 8; // hand aane ke baad itne second ka wait
 const FADE_TIME = 2.5; // hand aur do flowers kitni slowly gayab hon
 
 const GLASS =
-  'rounded-3xl border border-white/40 bg-white/10 backdrop-blur-md shadow-[0_10px_40px_rgba(0,0,0,0.25)]';
+  'rounded-3xl border border-white/60 bg-white/25 backdrop-blur-lg shadow-[0_10px_40px_rgba(0,0,0,0.2)]';
 const SHADOW = { textShadow: '0 2px 14px rgba(60,0,30,0.65)' };
 
 /* ===================== DOOR GEOMETRY =====================
@@ -102,7 +106,7 @@ function Countdown({ target }) {
       {tiles.map((t) => (
         <div
           key={t.label}
-          className="flex flex-col items-center rounded-xl border border-white/30 bg-white/10 py-3 backdrop-blur-sm"
+          className="flex flex-col items-center rounded-xl border border-white/50 bg-white/25 py-3 backdrop-blur-sm"
         >
           <span className="text-2xl font-bold tabular-nums text-[#FFE08A] sm:text-3xl" style={SHADOW}>
             {t.value}
@@ -388,7 +392,7 @@ function App() {
       <div
         ref={doorRef}
         onClick={handleOpen}
-        className="fixed inset-0 z-50 cursor-pointer overflow-hidden bg-[#f3e3d3]"
+        className="fixed inset-0 z-50 cursor-pointer overflow-hidden"
         style={{
           visibility: loaded ? 'visible' : 'hidden',
           // --sw: door image ki width (landscape par screen bhar, phone par darwaza screen mein fit)
@@ -405,18 +409,26 @@ function App() {
           </defs>
         </svg>
 
-        {/* Phone par upar/neeche ka khali hissa: wahi image blur karke bhar do */}
-        {narrow && (
-          <div
-            className="pointer-events-none absolute -inset-5"
-            style={{
-              backgroundImage: `url(${IMG.door})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              filter: 'blur(14px)',
-            }}
-          ></div>
-        )}
+        {/* Phone par upar/neeche ka khali hissa: sirf patti (beech ka hole khali rehta hai taake bg nazar aaye) */}
+        {narrow &&
+          ['top', 'bottom'].map((side) => (
+            <div
+              key={side}
+              className="pointer-events-none absolute inset-x-0 overflow-hidden"
+              style={{ [side]: 0, height: 'calc(50% - var(--sh) / 2 + 3px)' }}
+            >
+              <div
+                className="absolute -inset-5"
+                style={{
+                  backgroundImage: `url(${IMG.door})`,
+                  backgroundSize: 'var(--sw) 800%',
+                  backgroundPosition: `50% ${side === 'top' ? '0%' : '100%'}`,
+                  backgroundRepeat: 'no-repeat',
+                  filter: 'blur(14px)',
+                }}
+              ></div>
+            </div>
+          ))}
 
         {/* Stage: door image apni asal ratio mein */}
         <div
